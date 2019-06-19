@@ -2,9 +2,12 @@ DATA:
 # public variables:
 # the os of the system. do not change unless you know what you are doing.
 # the library will try to determine the os type itself.
-# other wise always set it to one of the constants
+# otherwise always set it to one of the constants
 getdir.os is number
-# the filenames will be stored here
+# the directory we want to search
+# it is reset after each search
+getdir.dir is text
+# the returned filenames will be stored here
 getdir.filenames is text vector
 # private variables:
 # the command that is going to be executed.
@@ -17,10 +20,13 @@ getdir.private.output is text
 # constant variables:
 getdir.constant.windows is number
 getdir.constant.posix is number
+# current directory
+getdir.constant.currentDir is text
 PROCEDURE:
     store 0 in getdir.constant.windows
     store 1 in getdir.constant.posix
-
+    store "" in getdir.constant.currentDir
+    
     sub-procedure getdir.discoverOs
         # discovers the scripting language that the os defaults to:
         # either batch for windows or <something>sh (like bash) for almost everything else.
@@ -39,16 +45,18 @@ PROCEDURE:
 
 
     sub-procedure getdir.getFilesInDirPosix
-        store "find * -maxdepth 0 -type f " in getdir.private.command
+        in getdir.private.command store "find" getdir.dir "* -maxdepth 0 -type f "
         execute getdir.private.command and store output in getdir.private.command
         split getdir.private.output by "\n" in getdir.filenames
+        store getdir.constant.currentDir in getdir.dir
     end sub-procedure
 
 
     sub-procedure getdir.getFilesInDirWindows
-        store "dir /b /a-d" in getdir.private.command
+        in getdir.private.command join "dir" getdir.dir "/b /a-d"
         execute getdir.private.command and store output in getdir.private.output
         split getdir.private.output by "\n" in getdir.filenames
+        store getdir.constant.currentDir in getdir.dir
     end sub-procedure
 
     sub-procedure getdir.getFilenames

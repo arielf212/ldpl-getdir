@@ -1,0 +1,61 @@
+DATA:
+# public variables:
+# the os of the system. do not change unless you know what you are doing.
+# the library will try to determine the os type itself.
+# other wise always set it to one of the constants
+getdir.os is number
+# the filenames will be stored here
+getdir.filenames is text vector
+# private variables:
+# the command that is going to be executed.
+# this is stored as a variable because of stupid newlines
+getdir.private.command is text
+# the exit code of the called command
+getdir.private.code is number
+# the result of the called command
+getdir.private.output is text
+# constant variables:
+getdir.constant.windows is number
+getdir.constant.posix is number
+PROCEDURE:
+    store 0 in getdir.constant.windows
+    store 1 in getdir.constant.posix
+
+    sub-procedure getdir.discoverOs
+        # discovers the scripting language that the os defaults to:
+        # either batch for windows or <something>sh (like bash) for almost everything else.
+        execute "echo \"$OSTYPE\"" and store output in getdir.private.output
+        # $OSTYPE is a variable that is defined on all major posix compliant operating systems.
+        # windows is not posix compliant, which means that this variable isn't defined.
+        # because of that, the result of the command on almost all operating systems
+        # is going to be the name of the os, while on windows it will just output "$OSTYPE".
+        # we are going to exploit this in order to determine if the command is ran on windows.
+        if getdir.private.output is equal to "\"$OSTYPE\"\n" then
+            store getdir.constant.windows in getdir.os
+        else
+            store getdir.constant.posix in getdir.os
+        end if
+    end sub-procedure
+
+
+    sub-procedure getdir.getFilesInDirPosix
+        store "find * -maxdepth 0 -type f " in getdir.private.command
+        execute getdir.private.command and store output in getdir.private.command
+        split getdir.private.output by "\n" in getdir.filenames
+    end sub-procedure
+
+
+    sub-procedure getdir.getFilesInDirWindows
+        store "dir /b /a-d" in getdir.private.command
+        execute getdir.private.command and store output in getdir.private.output
+        split getdir.private.output by "\n" in getdir.filenames
+    end sub-procedure
+
+    sub-procedure getdir.getFilenames
+        # use this subprocedure unless you know what you're doing
+        if getdir.os is equal to getdir.constant.windows then
+            call getdir.getFilesInDirWindows
+        else
+            call getdir.getFilesInDirPosix
+        end if
+    end sub-procedure

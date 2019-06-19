@@ -1,0 +1,11 @@
+DATA:
+len is number
+index is number
+PROCEDURE:
+    # test for current dir
+    call getdir.getFilenames
+    store index count of getdir.filenames in len
+    while index is less than len do
+        display getdir.filenames:index crlf
+        incr index
+    repeat

@@ -45,7 +45,7 @@ PROCEDURE:
 
 
     sub-procedure getdir.getFilesInDirPosix
-        in getdir.private.command store "find" getdir.dir "* -maxdepth 0 -type f "
+        in getdir.private.command join "findc" getdir.dir "* -maxdepth 0 -type f "
         execute getdir.private.command and store output in getdir.private.command
         split getdir.private.output by "\n" in getdir.filenames
         store getdir.constant.currentDir in getdir.dir
@@ -53,7 +53,7 @@ PROCEDURE:
 
 
     sub-procedure getdir.getFilesInDirWindows
-        in getdir.private.command join "dir" getdir.dir "/b /a-d"
+        in getdir.private.command join "dir " getdir.dir " /b /a-d"
         execute getdir.private.command and store output in getdir.private.output
         split getdir.private.output by "\n" in getdir.filenames
         store getdir.constant.currentDir in getdir.dir

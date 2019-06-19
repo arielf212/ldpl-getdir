@@ -1,0 +1,18 @@
+DATA:
+len is number
+index is number
+content is text
+filename is text
+PROCEDURE:
+    # test for any dir
+    store "test_dir" in getdir.dir
+    call getdir.getFilenames
+    store index count of getdir.filenames in len
+    while index is less than len do
+        in content join "=== " getdir.filenames:index " ==="
+        display content crlf
+        in filename join "test_dir/" getdir.filenames:index
+        load file filename in content
+        display content crlf
+        incr index
+    repeat
